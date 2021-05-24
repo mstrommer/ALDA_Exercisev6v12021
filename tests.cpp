@@ -4,102 +4,113 @@
 
 //#define CATCH_CONFIG_MAIN // defines main() automatically
 #include "lib/catch.hpp"
-#include "sort.hpp"
-
-element* stations;
-element* tmpStations;
-int size;
-
-int setup(int* size) {
-    stations = (element*)malloc(sizeof(element)*6000);
-    tmpStations = (element*)malloc(sizeof(element)*6000);
-    FILE * fp;
-    char line[100]; // keeps one line of the file
-
-    // try to open the file; in case of an error exit the program
-    *size = 0;
-    fp = fopen("stations.csv", "r");
-    if (!fp) {
-        printf("Cannot open file stations.csv!\n");
-        return 1;
-    }
-    
-    // read all weather stations from file and add them to the
-    // hash table
-    while (!feof(fp)) {
-        // read one line and skip empty and comment lines
-        fgets(line, 100, fp);
-        if (line[0] == '#') continue;
-        if (isspace(line[0])) continue;
-        
-        line[strcspn(line, "\r\n")] = 0;
-        // take the first 4 characters as key value
-        strncpy(stations[*size].icao_code, line, 4);
-        stations[*size].icao_code[4] = '\0';
-        
-        // take the rest as value
-        strcpy(stations[*size].station_name, strchr(line, ';')+1);
-        *size += 1;
-    }
-    
-    // close the file
-    fclose(fp);
-    
-    return 0;
-}
+#include "bintree.hpp"
 
 // =====================
-// Sorting Testcases
+// Bintree Testcases
 // ---------------------
 
-TEST_CASE("Test1", "selectionSort")
+TEST_CASE("Test1", "insert")
 {
-    int error = false;
-    int i;
-    setup(&size);
-    selection_sort(stations, size);
-    for (i = 0; i < size - 1; i++)
-    {
-        if(strcmp(stations[i].station_name, stations[i + 1].station_name) > 0){
-            error = true;
-            break;
-        }
-    }
-    INFO("Test Case for SelectionSort: some elements are not sorted correctly (" << i << ":" << stations[i].station_name << " > " << i + 1 << ":" << stations[i + 1].station_name << ")!");
-    REQUIRE(error == false);
+    binTree *tree = t_init();
+    insert(tree, 1, "123");
+    INFO("No Node was inserted into the tree");
+    REQUIRE(tree->root != NULL);
+}
+
+TEST_CASE("Test2", "insert")
+{
+    binTree *tree = t_init();
+    insert(tree, 1, "123");
+    REQUIRE(tree->root != NULL);
+    INFO("Data needs to be inserted as C-String!");
+    REQUIRE(strlen(tree->root->data) + 1 == 4);
+}
+
+TEST_CASE("Test3", "insert")
+{
+    binTree *tree = t_init();
+    insert(tree, 3, "123");
+    REQUIRE(tree->root != NULL);
+    insert(tree, 1, "2");
+    insert(tree, 6, "4");
+    INFO("Testing insert for keys: 3 - 1 - 6.");
+    REQUIRE(tree->root->left != NULL);
+    REQUIRE(tree->root->right != NULL);
+    REQUIRE(tree->root->right->key == 6);
+    REQUIRE(tree->root->left->key == 1);
+}
+
+TEST_CASE("Test4", "insert")
+{
+    binTree *tree = t_init();
+    insert(tree, 5, "5");
+    REQUIRE(tree->root != NULL);
+    insert(tree, 4, "4");
+    insert(tree, 3, "3");
+    INFO("Testing insert for keys: 5 - 4 - 3.");
+    REQUIRE(tree->root->left != NULL);
+    REQUIRE(tree->root->left->key == 4);
+    REQUIRE(tree->root->left->left->key == 3);
 }
 
 
-TEST_CASE("Test2", "mergeSort")
+TEST_CASE("Test5", "evaluateExpression")
 {
-    int error = false;
-    int i;
-    setup(&size);
-    merge_sort(stations, tmpStations, 0, size-1);
-    for (i = 0; i < size - 1; i++)
-    {
-        if(strcmp(stations[i].station_name, stations[i + 1].station_name) < 0){
-            error = true;
-            break;
-        }
-    }
-    INFO("Test Case for MergeSort: some elements are not sorted correctly (" << i << ":" << stations[i].station_name << " < " << i + 1 << ":" << stations[i + 1].station_name << ")!");
-    REQUIRE(error == false);
+    binTree *tree = t_init();
+    insert(tree, 3, "*");
+    insert(tree, 1, "+");
+    insert(tree, 2, "25");
+    insert(tree, 4, "-");
+    insert(tree, 6, "-");
+    insert(tree, 5, "2");
+    insert(tree, 7, "3");
+    
+    int result = evaluateExpression(tree->root);
+
+    INFO("The expressoin given (+25 * -(2 - 3)) is not computed correctly!");
+    REQUIRE(result == 25);
 }
 
-TEST_CASE("Test3", "selectionSortFP")
+TEST_CASE("Test6", "evaluateExpression")
 {
-    int error = false;
-    int i;
-    setup(&size);
-    selection_sort_fp(stations, size, compareByIcaoCode);
-    for (i = 0; i < size - 1; i++)
-    {
-        if(strcmp(stations[i].icao_code, stations[i + 1].icao_code) > 0){
-            error = true;
-            break;
-        }
-    }
-    INFO("Test Case for SelectionSort using Function Pointer: some elements are not sorted correctly (" << i << ":" << stations[i].icao_code << " > " << i + 1 << ":" << stations[i + 1].icao_code << ")!");
-    REQUIRE(error == false);
+    binTree *tree = t_init();
+    insert(tree, 10, "+");
+    insert(tree, 11, "5");
+    insert(tree, 8, "+");
+    insert(tree, 9, "4");
+    insert(tree, 6, "+");
+    insert(tree, 7, "3");
+    insert(tree, 4, "+");
+    insert(tree, 5, "2");
+    insert(tree, 3, "1");
+    
+    int result = evaluateExpression(tree->root);
+
+    INFO("The expressoin given (1 + 2 + 3 + 4 + 5) is not computed correctly!");
+    REQUIRE(result == 15);
+}
+
+
+TEST_CASE("Test7", "evaluateExpression")
+{
+    binTree *tree = t_init();
+    insert(tree, 2, "+");
+    insert(tree, 1, "7");
+    insert(tree, 4, "*");
+    insert(tree, 3, "3");
+    insert(tree, 6, "/");
+    insert(tree, 5, "10");
+    insert(tree, 15, "-");
+    insert(tree, 16, "1");
+    insert(tree, 9, "/");
+    insert(tree, 8, "12");
+    insert(tree, 12, "+");
+    insert(tree, 11, "3");
+    insert(tree, 13, "1");
+    
+    int result = evaluateExpression(tree->root);
+
+    INFO("The expressoin given (7 + 3 * (10 / (12 / (3 + 1) - 1))) is not computed correctly!");
+    REQUIRE(result == 22);
 }
