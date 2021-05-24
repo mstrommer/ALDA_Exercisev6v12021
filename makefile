@@ -5,20 +5,20 @@
 CXX=g++
 CPPFLAGS=--std=c++17
 
-DEPS=sort.hpp lib/catch.hpp
-OBJ=main.o sort.o tests.o
+DEPS=bintree.hpp lib/catch.hpp
+OBJ=main.o bintree.o tests.o
 
 all: clean test
 
 %.o: %.cpp $(DEPS)
 	$(CXX) -c -o $@ $< $(CPPFLAGS)
 
-exercise5: $(OBJ)
+exercise6: $(OBJ)
 	$(CXX) -o $@ $^ $(CPPFLAGS)
 
-test: exercise5
+test: exercise6
 	# executes all tests
-	./exercise5
+	./exercise6
 
 clean:
-	rm -f exercise5
+	rm -f exercise6
