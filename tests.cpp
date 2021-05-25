@@ -15,14 +15,14 @@ TEST_CASE("Test1", "insert")
     binTree *tree = t_init();
     insert(tree, 1, "123");
     INFO("No Node was inserted into the tree");
-    REQUIRE(tree->root != NULL);
+    REQUIRE(tree->root != nullptr);
 }
 
 TEST_CASE("Test2", "insert")
 {
     binTree *tree = t_init();
     insert(tree, 1, "123");
-    REQUIRE(tree->root != NULL);
+    REQUIRE(tree->root != nullptr);
     INFO("Data needs to be inserted as C-String!");
     REQUIRE(strlen(tree->root->data) + 1 == 4);
 }
@@ -31,12 +31,12 @@ TEST_CASE("Test3", "insert")
 {
     binTree *tree = t_init();
     insert(tree, 3, "123");
-    REQUIRE(tree->root != NULL);
+    REQUIRE(tree->root != nullptr);
     insert(tree, 1, "2");
     insert(tree, 6, "4");
     INFO("Testing insert for keys: 3 - 1 - 6.");
-    REQUIRE(tree->root->left != NULL);
-    REQUIRE(tree->root->right != NULL);
+    REQUIRE(tree->root->left != nullptr);
+    REQUIRE(tree->root->right != nullptr);
     REQUIRE(tree->root->right->key == 6);
     REQUIRE(tree->root->left->key == 1);
 }
@@ -45,11 +45,11 @@ TEST_CASE("Test4", "insert")
 {
     binTree *tree = t_init();
     insert(tree, 5, "5");
-    REQUIRE(tree->root != NULL);
+    REQUIRE(tree->root != nullptr);
     insert(tree, 4, "4");
     insert(tree, 3, "3");
     INFO("Testing insert for keys: 5 - 4 - 3.");
-    REQUIRE(tree->root->left != NULL);
+    REQUIRE(tree->root->left != nullptr);
     REQUIRE(tree->root->left->key == 4);
     REQUIRE(tree->root->left->left->key == 3);
 }
